@@ -4,18 +4,15 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "ejbank_account")
-public class AccountEntity implements Serializable {
+@Table(name = "ejbank_account_type")
+public class AccountTypeEntity implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	
@@ -24,24 +21,16 @@ public class AccountEntity implements Serializable {
 	@Column(name = "id")
 	private int id;
 	
-	@Column(name = "balance") 
-	private float balance;
-	
 	@NotNull
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "account_type_id")
-	private AccountTypeEntity accountType;
+	@Column(name = "name")
+	private String name;
 	
 	public int getId() {
 		return id;
 	}
 	
-	public float getBalance() {
-		return balance;
-	}
-	
-	public AccountTypeEntity getAccountType() {
-		return accountType;
+	public String getName() {
+		return name;
 	}
 
 }

@@ -2,6 +2,7 @@ package com.ejbank.api;
 
 import java.util.List;
 
+import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -9,6 +10,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.ejbank.AccountBean;
 import com.ejbank.pojos.AccountPOJO;
 
 @Path("/accounts")
@@ -16,11 +18,14 @@ import com.ejbank.pojos.AccountPOJO;
 @RequestScoped
 public class AccountWebService {
 	
+	@EJB
+	private AccountBean accountBean;
+	
 	@Path("/{userId}")
 	@GET
 	public List<AccountPOJO> getCustomerAccounts(@PathParam("userId") int id) {
 		if(id < 0) throw new IllegalArgumentException("Identifiant négatif !"); // A voir si on fait une execption ou un POJO vide pour pas planter le serveur
-		return null; /* <FIXME> */
+		return accountBean.getAccountsById(id);
 	}
 
 }

@@ -6,7 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import com.ejbank.UserBean;
-import com.ejbank.entities.CustomerEntity;
+import com.ejbank.entities.UserEntity;
 import com.ejbank.pojos.CustomerPOJO;
 
 @Stateless
@@ -18,7 +18,7 @@ public class UserBeanImpl implements UserBean {
 
 	@Override
 	public CustomerPOJO getUserById(int id) {
-		CustomerEntity result = em.find(CustomerEntity.class, id);
+		UserEntity result = em.find(UserEntity.class, id);
 		return new CustomerPOJO(result.getFirstname(), result.getLastname());
 	}
 	
