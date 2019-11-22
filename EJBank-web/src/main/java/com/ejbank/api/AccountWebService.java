@@ -11,9 +11,10 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.ejbank.AccountBean;
+import com.ejbank.pojos.AccountDetailsPOJO;
 import com.ejbank.pojos.AccountPOJO;
 
-@Path("/accounts")
+@Path("/")
 @Produces(MediaType.APPLICATION_JSON)
 @RequestScoped
 public class AccountWebService {
@@ -21,11 +22,17 @@ public class AccountWebService {
 	@EJB
 	private AccountBean accountBean;
 	
-	@Path("/{userId}")
+	@Path("/accounts/{userId}") // For accounts/{userId}
 	@GET
 	public List<AccountPOJO> getCustomerAccounts(@PathParam("userId") int id) {
-		if(id < 0) throw new IllegalArgumentException("Identifiant négatif !"); // A voir si on fait une execption ou un POJO vide pour pas planter le serveur
+		if(id < 0) throw new IllegalArgumentException("Identifiant négatif !"); // A voir si on fait une exception ou un POJO vide pour pas planter le serveur
 		return accountBean.getAccountsById(id);
+	}
+	
+	@Path("account/{account_id}/{user_id}")
+	@GET
+	public AccountDetailsPOJO getAccountDetails(@PathParam("account_id") int accountId, @PathParam("user_id") int userId) {
+		return accountBean.getAccountDetails(accountId, userId);
 	}
 
 }

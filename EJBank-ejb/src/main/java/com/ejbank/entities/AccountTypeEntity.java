@@ -25,12 +25,19 @@ public class AccountTypeEntity implements Serializable{
 	@Column(name = "name")
 	private String name;
 	
+	@Column(name = "rate")
+	private float rate;
+	
 	public int getId() {
 		return id;
 	}
 	
 	public String getName() {
 		return name;
+	}
+	
+	public float getRate() {
+		return rate;
 	}
 
 }

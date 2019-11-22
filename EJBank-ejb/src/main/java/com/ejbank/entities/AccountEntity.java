@@ -4,7 +4,6 @@ import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -28,9 +27,13 @@ public class AccountEntity implements Serializable {
 	private float balance;
 	
 	@NotNull
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne
 	@JoinColumn(name = "account_type_id")
 	private AccountTypeEntity accountType;
+	
+	@NotNull
+	@ManyToOne
+	private CustomerEntity customer;
 	
 	public int getId() {
 		return id;
@@ -42,6 +45,10 @@ public class AccountEntity implements Serializable {
 	
 	public AccountTypeEntity getAccountType() {
 		return accountType;
+	}
+	
+	public CustomerEntity getCustomer() {
+		return customer;
 	}
 
 }
