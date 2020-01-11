@@ -1,6 +1,7 @@
 package com.ejbank.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.ejb.LocalBean;
@@ -13,6 +14,7 @@ import com.ejbank.entities.AccountEntity;
 import com.ejbank.entities.CustomerEntity;
 import com.ejbank.pojos.AccountDetailsPOJO;
 import com.ejbank.pojos.AccountPOJO;
+import com.ejbank.pojos.AccountsPOJO;
 
 /**
  * Session Bean implementation class AccountBeanImpl
@@ -28,14 +30,14 @@ public class AccountBeanImpl implements AccountBean {
 	 * Get a User's accounts by its id
      * @see AccountBean#getAccountsById(int)
      */
-    public List<AccountPOJO> getAccountsById(int id) {
+    public AccountsPOJO getAccountsById(int id) {
         CustomerEntity result = em.find(CustomerEntity.class, id);
         List<AccountPOJO> pojos = new ArrayList<AccountPOJO>();
-        if(result == null) return pojos; // S'il n'y a pas de compte pour l'utilisateur demandé
+        if(result == null) return new AccountsPOJO(Collections.<AccountPOJO>emptyList(), ""); // S'il n'y a pas de compte pour l'utilisateur demandé
         for(AccountEntity account : result.getAccounts()) {
         	pojos.add(new AccountPOJO(account.getId(), account.getAccountType().getName(), account.getBalance()));
         }
-        return pojos;
+        return new AccountsPOJO(pojos, "");
     }
     
     public AccountDetailsPOJO getAccountDetails(int accountId, int userId) {

@@ -1,238 +1,276 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
-                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
-                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
-    <changeSet author="mboudign" id="2-1">
-        <createTable tableName="ejbank_account">
-            <column autoIncrement="true" name="id" type="INT">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="customer_id" type="INT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="account_type_id" type="INT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="balance" type="DECIMAL(10)"/>
-        </createTable>
-    </changeSet>
-    <changeSet author="mboudign" id="2-2">
-        <createTable tableName="ejbank_account_type">
-            <column autoIncrement="true" name="id" type="INT">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="name" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="rate" type="DECIMAL(10)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="overdraft" type="INT">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
-    <changeSet author="mboudign" id="2-3">
-        <createTable tableName="ejbank_advisor">
-            <column autoIncrement="true" name="id" type="INT">
-                <constraints primaryKey="true"/>
-            </column>
-        </createTable>
-    </changeSet>
-    <changeSet author="mboudign" id="2-4">
-        <createTable tableName="ejbank_customer">
-            <column autoIncrement="true" name="id" type="INT">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="advisor_id" type="INT">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
-    <changeSet author="mboudign" id="2-5">
-        <createTable tableName="ejbank_transaction">
-            <column autoIncrement="true" name="id" type="INT">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="account_id_from" type="INT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="account_id_to" type="INT">
-                <constraints nullable="false"/>
-            </column>
-            <column name="author" type="INT"/>
-            <column name="amount" type="DECIMAL(10)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="comment" type="VARCHAR(255)"/>
-            <column name="applied" type="TINYINT(1)">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
-    <changeSet author="mboudign" id="2-6">
-        <createTable tableName="ejbank_user">
-            <column autoIncrement="true" name="id" type="INT">
-                <constraints primaryKey="true"/>
-            </column>
-            <column name="login" type="VARCHAR(8)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="password" remarks="Hash : SHA-256" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="email" type="VARCHAR(255)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="firstname" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="lastname" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
-            <column name="type" type="VARCHAR(50)">
-                <constraints nullable="false"/>
-            </column>
-        </createTable>
-    </changeSet>
-    <changeSet author="mboudign" id="2-16">
-        <addForeignKeyConstraint baseColumnNames="account_type_id" baseTableName="ejbank_account" constraintName="fk_account_account_typ" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="id" referencedTableName="ejbank_account_type"/>
-    </changeSet>
-    <changeSet author="mboudign" id="2-17">
-        <addForeignKeyConstraint baseColumnNames="customer_id" baseTableName="ejbank_account" constraintName="fk_account_customer" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="id" referencedTableName="ejbank_customer"/>
-    </changeSet>
-    <changeSet author="mboudign" id="2-19">
-        <addForeignKeyConstraint baseColumnNames="advisor_id" baseTableName="ejbank_customer" constraintName="fk_customer_advisor" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="id" referencedTableName="ejbank_advisor"/>
-    </changeSet>
-    <changeSet author="mboudign" id="2-21">
-        <addForeignKeyConstraint baseColumnNames="account_id_from" baseTableName="ejbank_transaction" constraintName="fk_transation_account_from" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="id" referencedTableName="ejbank_account"/>
-    </changeSet>
-    <changeSet author="mboudign" id="2-22">
-        <addForeignKeyConstraint baseColumnNames="account_id_to" baseTableName="ejbank_transaction" constraintName="fk_transation_account_to" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="id" referencedTableName="ejbank_account"/>
-    </changeSet>
-    <changeSet author="mboudign" id="2-23">
-        <addForeignKeyConstraint baseColumnNames="author" baseTableName="ejbank_transaction" constraintName="fk_transation_user" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="id" referencedTableName="ejbank_user"/>
-    </changeSet>
-    <changeSet author="mboudign" id="3-5">
-        <insert tableName="ejbank_user">
-            <column name="id" valueNumeric="1"/>
-            <column name="login" value="jdupont"/>
-            <column name="password" value="17d11b053fa260293789e4383d35b3d0ed7aca66d30fbd1598633df73f84ceb5"/>
-            <column name="email" value="jean.dupont@nomail.com"/>
-            <column name="firstname" value="Jean"/>
-            <column name="lastname" value="Dupont"/>
-            <column name="type" value="customer"/>
-        </insert>
-        <insert tableName="ejbank_user">
-            <column name="id" valueNumeric="2"/>
-            <column name="login" value="spetit"/>
-            <column name="password" value="3440ec1475d1ab0902edb69516adadc88ede1898b7688757bddf861346cd7104"/>
-            <column name="email" value="sophie.petit@nomail.com"/>
-            <column name="firstname" value="Sophie"/>
-            <column name="lastname" value="Petit"/>
-            <column name="type" value="customer"/>
-        </insert>
-        <insert tableName="ejbank_user">
-            <column name="id" valueNumeric="3"/>
-            <column name="login" value="cmoreau"/>
-            <column name="password" value="7781e65160cf63fd5da7991b0c0fe7c4eba27ba7ec79bf9fe6841fe153d949d1"/>
-            <column name="email" value="christophe.moreau@nomail.com"/>
-            <column name="firstname" value="Christophe"/>
-            <column name="lastname" value="Moreau"/>
-            <column name="type" value="customer"/>
-        </insert>
-        <insert tableName="ejbank_user">
-            <column name="id" valueNumeric="4"/>
-            <column name="login" value="lperrin"/>
-            <column name="password" value="661bcd33231588d9e551aec1f5e1ed6582472bf7ffa9ba6b5223ba9f9288111e"/>
-            <column name="email" value="lucas.perrin@nomail.com"/>
-            <column name="firstname" value="Lucas"/>
-            <column name="lastname" value="Perrin"/>
-            <column name="type" value="advisor"/>
-        </insert>
-        <insert tableName="ejbank_user">
-            <column name="id" valueNumeric="5"/>
-            <column name="login" value="vfournie"/>
-            <column name="password" value="eb054dceeda5960adbbce9a97e16dd20ba30c054d8945e1a0c67d1d391f4a9d2"/>
-            <column name="email" value="vincent.fournier@nomail.com"/>
-            <column name="firstname" value="Vincent"/>
-            <column name="lastname" value="Fournier"/>
-            <column name="type" value="advisor"/>
-        </insert>
-    </changeSet>
-    <changeSet author="mboudign" id="3-3">
-        <insert tableName="ejbank_advisor">
-            <column name="id" valueNumeric="4"/>
-        </insert>
-        <insert tableName="ejbank_advisor">
-            <column name="id" valueNumeric="5"/>
-        </insert>
-    </changeSet>
-    <changeSet author="mboudign" id="3-4">
-        <insert tableName="ejbank_customer">
-            <column name="id" valueNumeric="1"/>
-            <column name="advisor_id" valueNumeric="4"/>
-        </insert>
-        <insert tableName="ejbank_customer">
-            <column name="id" valueNumeric="2"/>
-            <column name="advisor_id" valueNumeric="5"/>
-        </insert>
-        <insert tableName="ejbank_customer">
-            <column name="id" valueNumeric="3"/>
-            <column name="advisor_id" valueNumeric="4"/>
-        </insert>
-    </changeSet>
-    <changeSet author="mboudign" id="3-2">
-        <insert tableName="ejbank_account_type">
-            <column name="id" valueNumeric="1"/>
-            <column name="name" value="Courant"/>
-            <column name="rate" valueNumeric="0"/>
-            <column name="overdraft" valueNumeric="500"/>
-        </insert>
-        <insert tableName="ejbank_account_type">
-            <column name="id" valueNumeric="2"/>
-            <column name="name" value="Livret A"/>
-            <column name="rate" valueNumeric="1"/>
-            <column name="overdraft" valueNumeric="0"/>
-        </insert>
-        <insert tableName="ejbank_account_type">
-            <column name="id" valueNumeric="3"/>
-            <column name="name" value="Livret Jeune"/>
-            <column name="rate" valueNumeric="2"/>
-            <column name="overdraft" valueNumeric="0"/>
-        </insert>
-    </changeSet>
-    <changeSet author="mboudign" id="3-1">
-        <insert tableName="ejbank_account">
-            <column name="id" valueNumeric="1"/>
-            <column name="customer_id" valueNumeric="1"/>
-            <column name="account_type_id" valueNumeric="1"/>
-            <column name="balance" valueNumeric="200"/>
-        </insert>
-        <insert tableName="ejbank_account">
-            <column name="id" valueNumeric="2"/>
-            <column name="customer_id" valueNumeric="1"/>
-            <column name="account_type_id" valueNumeric="2"/>
-            <column name="balance" valueNumeric="1500"/>
-        </insert>
-        <insert tableName="ejbank_account">
-            <column name="id" valueNumeric="3"/>
-            <column name="customer_id" valueNumeric="2"/>
-            <column name="account_type_id" valueNumeric="1"/>
-            <column name="balance" valueNumeric="-10"/>
-        </insert>
-        <insert tableName="ejbank_account">
-            <column name="id" valueNumeric="4"/>
-            <column name="customer_id" valueNumeric="3"/>
-            <column name="account_type_id" valueNumeric="1"/>
-            <column name="balance" valueNumeric="150"/>
-        </insert>
-        <insert tableName="ejbank_account">
-            <column name="id" valueNumeric="6"/>
-            <column name="customer_id" valueNumeric="3"/>
-            <column name="account_type_id" valueNumeric="3"/>
-            <column name="balance" valueNumeric="4000"/>
-        </insert>
-    </changeSet>
+<databaseChangeLog
+	xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+	xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+	<changeSet author="mboudign" id="2-1">
+		<createTable tableName="ejbank_account">
+			<column autoIncrement="true" name="id" type="INT">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="customer_id" type="INT">
+				<constraints nullable="false" />
+			</column>
+			<column name="account_type_id" type="INT">
+				<constraints nullable="false" />
+			</column>
+			<column name="balance" type="DECIMAL(10)" />
+		</createTable>
+	</changeSet>
+	<changeSet author="mboudign" id="2-2">
+		<createTable tableName="ejbank_account_type">
+			<column autoIncrement="true" name="id" type="INT">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="name" type="VARCHAR(50)">
+				<constraints nullable="false" />
+			</column>
+			<column name="rate" type="DECIMAL(10)">
+				<constraints nullable="false" />
+			</column>
+			<column name="overdraft" type="INT">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+	</changeSet>
+	<changeSet author="mboudign" id="2-3">
+		<createTable tableName="ejbank_advisor">
+			<column autoIncrement="true" name="id" type="INT">
+				<constraints primaryKey="true" />
+			</column>
+		</createTable>
+	</changeSet>
+	<changeSet author="mboudign" id="2-4">
+		<createTable tableName="ejbank_customer">
+			<column autoIncrement="true" name="id" type="INT">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="advisor_id" type="INT">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+	</changeSet>
+	<changeSet author="mboudign" id="2-5">
+		<createTable tableName="ejbank_transaction">
+			<column autoIncrement="true" name="id" type="INT">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="account_id_from" type="INT">
+				<constraints nullable="false" />
+			</column>
+			<column name="account_id_to" type="INT">
+				<constraints nullable="false" />
+			</column>
+			<column name="author" type="INT" />
+			<column name="amount" type="DECIMAL(10)">
+				<constraints nullable="false" />
+			</column>
+			<column name="comment" type="VARCHAR(255)" />
+			<column name="applied" type="TINYINT(1)">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+	</changeSet>
+	<changeSet author="mboudign" id="2-6">
+		<createTable tableName="ejbank_user">
+			<column autoIncrement="true" name="id" type="INT">
+				<constraints primaryKey="true" />
+			</column>
+			<column name="login" type="VARCHAR(8)">
+				<constraints nullable="false" />
+			</column>
+			<column name="password" remarks="Hash : SHA-256"
+				type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="email" type="VARCHAR(255)">
+				<constraints nullable="false" />
+			</column>
+			<column name="firstname" type="VARCHAR(50)">
+				<constraints nullable="false" />
+			</column>
+			<column name="lastname" type="VARCHAR(50)">
+				<constraints nullable="false" />
+			</column>
+			<column name="type" type="VARCHAR(50)">
+				<constraints nullable="false" />
+			</column>
+		</createTable>
+	</changeSet>
+	<changeSet author="mboudign" id="2-16">
+		<addForeignKeyConstraint
+			baseColumnNames="account_type_id" baseTableName="ejbank_account"
+			constraintName="fk_account_account_typ" deferrable="false"
+			initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE"
+			referencedColumnNames="id" referencedTableName="ejbank_account_type" />
+	</changeSet>
+	<changeSet author="mboudign" id="2-17">
+		<addForeignKeyConstraint
+			baseColumnNames="customer_id" baseTableName="ejbank_account"
+			constraintName="fk_account_customer" deferrable="false"
+			initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE"
+			referencedColumnNames="id" referencedTableName="ejbank_customer" />
+	</changeSet>
+	<changeSet author="mboudign" id="2-19">
+		<addForeignKeyConstraint
+			baseColumnNames="advisor_id" baseTableName="ejbank_customer"
+			constraintName="fk_customer_advisor" deferrable="false"
+			initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE"
+			referencedColumnNames="id" referencedTableName="ejbank_advisor" />
+	</changeSet>
+	<changeSet author="mboudign" id="2-21">
+		<addForeignKeyConstraint
+			baseColumnNames="account_id_from" baseTableName="ejbank_transaction"
+			constraintName="fk_transation_account_from" deferrable="false"
+			initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE"
+			referencedColumnNames="id" referencedTableName="ejbank_account" />
+	</changeSet>
+	<changeSet author="mboudign" id="2-22">
+		<addForeignKeyConstraint
+			baseColumnNames="account_id_to" baseTableName="ejbank_transaction"
+			constraintName="fk_transation_account_to" deferrable="false"
+			initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE"
+			referencedColumnNames="id" referencedTableName="ejbank_account" />
+	</changeSet>
+	<changeSet author="mboudign" id="2-23">
+		<addForeignKeyConstraint
+			baseColumnNames="author" baseTableName="ejbank_transaction"
+			constraintName="fk_transation_user" deferrable="false"
+			initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE"
+			referencedColumnNames="id" referencedTableName="ejbank_user" />
+	</changeSet>
+	<changeSet author="mboudign" id="3-5">
+		<insert tableName="ejbank_user">
+			<column name="id" valueNumeric="1" />
+			<column name="login" value="jdupont" />
+			<column name="password"
+				value="17d11b053fa260293789e4383d35b3d0ed7aca66d30fbd1598633df73f84ceb5" />
+			<column name="email" value="jean.dupont@nomail.com" />
+			<column name="firstname" value="Jean" />
+			<column name="lastname" value="Dupont" />
+			<column name="type" value="customer" />
+		</insert>
+		<insert tableName="ejbank_user">
+			<column name="id" valueNumeric="2" />
+			<column name="login" value="spetit" />
+			<column name="password"
+				value="3440ec1475d1ab0902edb69516adadc88ede1898b7688757bddf861346cd7104" />
+			<column name="email" value="sophie.petit@nomail.com" />
+			<column name="firstname" value="Sophie" />
+			<column name="lastname" value="Petit" />
+			<column name="type" value="customer" />
+		</insert>
+		<insert tableName="ejbank_user">
+			<column name="id" valueNumeric="3" />
+			<column name="login" value="cmoreau" />
+			<column name="password"
+				value="7781e65160cf63fd5da7991b0c0fe7c4eba27ba7ec79bf9fe6841fe153d949d1" />
+			<column name="email" value="christophe.moreau@nomail.com" />
+			<column name="firstname" value="Christophe" />
+			<column name="lastname" value="Moreau" />
+			<column name="type" value="customer" />
+		</insert>
+		<insert tableName="ejbank_user">
+			<column name="id" valueNumeric="4" />
+			<column name="login" value="lperrin" />
+			<column name="password"
+				value="661bcd33231588d9e551aec1f5e1ed6582472bf7ffa9ba6b5223ba9f9288111e" />
+			<column name="email" value="lucas.perrin@nomail.com" />
+			<column name="firstname" value="Lucas" />
+			<column name="lastname" value="Perrin" />
+			<column name="type" value="advisor" />
+		</insert>
+		<insert tableName="ejbank_user">
+			<column name="id" valueNumeric="5" />
+			<column name="login" value="vfournie" />
+			<column name="password"
+				value="eb054dceeda5960adbbce9a97e16dd20ba30c054d8945e1a0c67d1d391f4a9d2" />
+			<column name="email" value="vincent.fournier@nomail.com" />
+			<column name="firstname" value="Vincent" />
+			<column name="lastname" value="Fournier" />
+			<column name="type" value="advisor" />
+		</insert>
+	</changeSet>
+	<changeSet author="mboudign" id="3-3">
+		<insert tableName="ejbank_advisor">
+			<column name="id" valueNumeric="4" />
+		</insert>
+		<insert tableName="ejbank_advisor">
+			<column name="id" valueNumeric="5" />
+		</insert>
+	</changeSet>
+	<changeSet author="mboudign" id="3-4">
+		<insert tableName="ejbank_customer">
+			<column name="id" valueNumeric="1" />
+			<column name="advisor_id" valueNumeric="4" />
+		</insert>
+		<insert tableName="ejbank_customer">
+			<column name="id" valueNumeric="2" />
+			<column name="advisor_id" valueNumeric="5" />
+		</insert>
+		<insert tableName="ejbank_customer">
+			<column name="id" valueNumeric="3" />
+			<column name="advisor_id" valueNumeric="4" />
+		</insert>
+	</changeSet>
+	<changeSet author="mboudign" id="3-2">
+		<insert tableName="ejbank_account_type">
+			<column name="id" valueNumeric="1" />
+			<column name="name" value="Courant" />
+			<column name="rate" valueNumeric="0" />
+			<column name="overdraft" valueNumeric="500" />
+		</insert>
+		<insert tableName="ejbank_account_type">
+			<column name="id" valueNumeric="2" />
+			<column name="name" value="Livret A" />
+			<column name="rate" valueNumeric="1" />
+			<column name="overdraft" valueNumeric="0" />
+		</insert>
+		<insert tableName="ejbank_account_type">
+			<column name="id" valueNumeric="3" />
+			<column name="name" value="Livret Jeune" />
+			<column name="rate" valueNumeric="2" />
+			<column name="overdraft" valueNumeric="0" />
+		</insert>
+	</changeSet>
+	<changeSet author="mboudign" id="3-1">
+		<insert tableName="ejbank_account">
+			<column name="id" valueNumeric="1" />
+			<column name="customer_id" valueNumeric="1" />
+			<column name="account_type_id" valueNumeric="1" />
+			<column name="balance" valueNumeric="200" />
+		</insert>
+		<insert tableName="ejbank_account">
+			<column name="id" valueNumeric="2" />
+			<column name="customer_id" valueNumeric="1" />
+			<column name="account_type_id" valueNumeric="2" />
+			<column name="balance" valueNumeric="1500" />
+		</insert>
+		<insert tableName="ejbank_account">
+			<column name="id" valueNumeric="3" />
+			<column name="customer_id" valueNumeric="2" />
+			<column name="account_type_id" valueNumeric="1" />
+			<column name="balance" valueNumeric="-10" />
+		</insert>
+		<insert tableName="ejbank_account">
+			<column name="id" valueNumeric="4" />
+			<column name="customer_id" valueNumeric="3" />
+			<column name="account_type_id" valueNumeric="1" />
+			<column name="balance" valueNumeric="150" />
+		</insert>
+		<insert tableName="ejbank_account">
+			<column name="id" valueNumeric="6" />
+			<column name="customer_id" valueNumeric="3" />
+			<column name="account_type_id" valueNumeric="3" />
+			<column name="balance" valueNumeric="4000" />
+		</insert>
+	</changeSet>
+	<changeSet author="mboudign" id="4-1">
+		<addColumn tableName="ejbank_transaction">
+			<column name="date" type="DATE">
+				<constraints nullable="false" />
+			</column>
+		</addColumn>
+	</changeSet>
 </databaseChangeLog>

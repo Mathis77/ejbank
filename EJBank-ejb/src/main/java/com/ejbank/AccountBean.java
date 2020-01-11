@@ -1,16 +1,14 @@
 package com.ejbank;
 
-import java.util.List;
-
 import javax.ejb.Local;
 
 import com.ejbank.pojos.AccountDetailsPOJO;
-import com.ejbank.pojos.AccountPOJO;
+import com.ejbank.pojos.AccountsPOJO;
 
 @Local
 public interface AccountBean {
 	
-	List<AccountPOJO> getAccountsById(int id);
+	AccountsPOJO getAccountsById(int id);
 	
 	AccountDetailsPOJO getAccountDetails(int accountId, int userId);
 
