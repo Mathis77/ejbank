@@ -21,7 +21,7 @@ public class TransactionWebService {
 	
 	@Path("/list/{account_id}/{offset}/{user_id}")
 	@GET
-	public TransactionsPOJO getTransactions(@PathParam("account_id") int account_id, @PathParam("offset") int offset,
+	public TransactionsPOJO getTransactions(@PathParam("account_id") long account_id, @PathParam("offset") int offset,
 			@PathParam("user_id") int user_id) {
 		return transactionBean.getAllTransactionsFromAnAccount(account_id, offset, user_id);
 	}

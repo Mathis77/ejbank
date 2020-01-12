@@ -1,5 +1,6 @@
 package com.ejbank.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.ejb.LocalBean;
@@ -9,6 +10,8 @@ import javax.persistence.PersistenceContext;
 
 import com.ejbank.TransactionBean;
 import com.ejbank.entities.TransactionEntity;
+import com.ejbank.mappers.TransactionMapper;
+import com.ejbank.pojos.TransactionPOJO;
 import com.ejbank.pojos.TransactionsPOJO;
 
 @Stateless
@@ -20,20 +23,25 @@ public class TransactionBeanImpl implements TransactionBean {
 	@PersistenceContext(unitName = "EJBankPU")
 	private EntityManager em;
 
+	private TransactionMapper mapper;
+
 	@Override
-	public TransactionsPOJO getAllTransactionsFromAnAccount(int account_id, int offset, int user_id) {
-		int count = (int)em.createNamedQuery("countAll").getSingleResult();
+	public TransactionsPOJO getAllTransactionsFromAnAccount(long account_id, int offset, int user_id) {
+		long count = (long)em.createNamedQuery("CountAllAccountTransaction").getSingleResult();
 		
 		@SuppressWarnings("unchecked")
 		List<TransactionEntity> transactions = (List<TransactionEntity>)em.createNamedQuery("AllTransactionsFromUserId")
 				.setParameter("userId", user_id)
-				.setParameter("limit", LIMIT)
-				.setParameter("offset", offset)
+				.setFirstResult(offset) // OFFSET
+				.setMaxResults(LIMIT) // LIMIT
 				.getResultList();
 
-
+		List<TransactionPOJO> transactionsPOJO = new ArrayList<>();
+		for(TransactionEntity te : transactions) {
+			transactionsPOJO.add(mapper.getTransactionDestinationPOJOFromTransactionEntity(te));
+		}
 		
-		return new TransactionsPOJO(count, transactions, "");
+		return new TransactionsPOJO(count, transactionsPOJO, "");
 	}
 
 }

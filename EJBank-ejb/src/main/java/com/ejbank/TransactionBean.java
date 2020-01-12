@@ -7,6 +7,6 @@ import com.ejbank.pojos.TransactionsPOJO;
 @Local
 public interface TransactionBean {
 	
-	TransactionsPOJO getAllTransactionsFromAnAccount(int account_id, int offset, int user_id);
+	TransactionsPOJO getAllTransactionsFromAnAccount(long account_id, int offset, int user_id);
 
 }
