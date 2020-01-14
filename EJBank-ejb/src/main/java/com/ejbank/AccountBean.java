@@ -9,6 +9,8 @@ import com.ejbank.pojos.AccountsPOJO;
 public interface AccountBean {
 	
 	AccountsPOJO getAccountsById(int id);
+
+	AccountsPOJO getAllAccountsById(int id);
 	
 	AccountDetailsPOJO getAccountDetails(int accountId, int userId);
 

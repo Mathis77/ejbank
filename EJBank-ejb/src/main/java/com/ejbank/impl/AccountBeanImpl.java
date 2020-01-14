@@ -11,10 +11,10 @@ import javax.persistence.PersistenceContext;
 
 import com.ejbank.AccountBean;
 import com.ejbank.entities.AccountEntity;
+import com.ejbank.entities.AdvisorEntity;
 import com.ejbank.entities.CustomerEntity;
-import com.ejbank.pojos.AccountDetailsPOJO;
-import com.ejbank.pojos.AccountPOJO;
-import com.ejbank.pojos.AccountsPOJO;
+import com.ejbank.entities.UserEntity;
+import com.ejbank.pojos.*;
 
 /**
  * Session Bean implementation class AccountBeanImpl
@@ -32,15 +32,36 @@ public class AccountBeanImpl implements AccountBean {
      */
     public AccountsPOJO getAccountsById(int id) {
         CustomerEntity result = em.find(CustomerEntity.class, id);
-        List<AccountPOJO> pojos = new ArrayList<AccountPOJO>();
-        if(result == null) return new AccountsPOJO(Collections.<AccountPOJO>emptyList(), ""); // S'il n'y a pas de compte pour l'utilisateur demandé
+		if(result == null) return new AccountsPOJO(Collections.<AccountPOJO>emptyList(), ""); // S'il n'y a pas de compte pour l'utilisateur demandé
+        List<AccountPOJO> pojos = new ArrayList<>();
         for(AccountEntity account : result.getAccounts()) {
-        	pojos.add(new AccountPOJO(account.getId(), account.getAccountType().getName(), account.getBalance()));
+        	pojos.add(new AccountWithoutUserPOJO(account.getId(), account.getAccountType().getName(), account.getBalance()));
         }
         return new AccountsPOJO(pojos, "");
     }
-    
-    public AccountDetailsPOJO getAccountDetails(int accountId, int userId) {
+
+	@Override
+	public AccountsPOJO getAllAccountsById(int id) {
+		UserEntity result = em.find(UserEntity.class, id);
+		if(result == null) return new AccountsPOJO(Collections.<AccountPOJO>emptyList(), ""); // S'il n'y a pas de compte pour l'utilisateur demandé
+		List<AccountPOJO> pojos = new ArrayList<>();
+		if(result instanceof AdvisorEntity) {
+			System.out.println("ADVISOR");
+			for(CustomerEntity ce : ((AdvisorEntity)result).getCustomers()) {
+				for(AccountEntity account : ce.getAccounts()) {
+					pojos.add(new AccountWithUserPOJO(account.getId(), account.getAccountType().getName(), account.getCustomer().getFirstname(), account.getBalance()));
+				}
+			}
+		} else {
+			System.out.println("CUSTOMER");
+			for(AccountEntity account : ((CustomerEntity)result).getAccounts()) {
+				pojos.add(new AccountWithUserPOJO(account.getId(), account.getAccountType().getName(), account.getCustomer().getFirstname(), account.getBalance()));
+			}
+		}
+		return new AccountsPOJO(pojos, "");
+	}
+
+	public AccountDetailsPOJO getAccountDetails(int accountId, int userId) {
     	AccountEntity account = em.find(AccountEntity.class, accountId);
     	if(account == null) {
     		return new AccountDetailsPOJO("");
