@@ -45,15 +45,13 @@ public class AccountBeanImpl implements AccountBean {
 		UserEntity result = em.find(UserEntity.class, id);
 		if(result == null) return new AccountsPOJO(Collections.<AccountPOJO>emptyList(), ""); // S'il n'y a pas de compte pour l'utilisateur demandé
 		List<AccountPOJO> pojos = new ArrayList<>();
-		if(result instanceof AdvisorEntity) {
-			System.out.println("ADVISOR");
+		if(result instanceof AdvisorEntity) { // Si c'est un conseiller
 			for(CustomerEntity ce : ((AdvisorEntity)result).getCustomers()) {
 				for(AccountEntity account : ce.getAccounts()) {
 					pojos.add(new AccountWithUserPOJO(account.getId(), account.getAccountType().getName(), account.getCustomer().getFirstname(), account.getBalance()));
 				}
 			}
-		} else {
-			System.out.println("CUSTOMER");
+		} else { // Si c'est un client
 			for(AccountEntity account : ((CustomerEntity)result).getAccounts()) {
 				pojos.add(new AccountWithUserPOJO(account.getId(), account.getAccountType().getName(), account.getCustomer().getFirstname(), account.getBalance()));
 			}

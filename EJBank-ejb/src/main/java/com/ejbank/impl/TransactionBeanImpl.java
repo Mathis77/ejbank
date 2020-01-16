@@ -9,8 +9,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import com.ejbank.TransactionBean;
+import com.ejbank.entities.AccountEntity;
 import com.ejbank.entities.TransactionEntity;
 import com.ejbank.mappers.TransactionMapper;
+import com.ejbank.pojos.InputPreviewTransactionPOJO;
+import com.ejbank.pojos.OutputPreviewTransactionPOJO;
 import com.ejbank.pojos.TransactionPOJO;
 import com.ejbank.pojos.TransactionsPOJO;
 
@@ -42,6 +45,27 @@ public class TransactionBeanImpl implements TransactionBean {
 		}
 		
 		return new TransactionsPOJO(count, transactionsPOJO, "");
+	}
+
+	@Override
+	public OutputPreviewTransactionPOJO preview(InputPreviewTransactionPOJO ipt) {
+		// Search for the src account and dst one
+		AccountEntity src = em.find(AccountEntity.class, ipt.getSource());
+		AccountEntity dst = em.find(AccountEntity.class, ipt.getDestination());
+
+		// Do some process
+		float before = src.getBalance() - ipt.getAmount();
+		float after = dst.getBalance() + ipt.getAmount();
+		boolean result = true;
+		String message = "";
+
+		// Check
+		if(before < 0) {
+			result = false;
+			message = "Vous ne disposez pas d'un solde suffisant.";
+		}
+
+		return new OutputPreviewTransactionPOJO(result, before, after, message, "");
 	}
 
 }
