@@ -6,9 +6,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import com.ejbank.TransactionBean;
-import com.ejbank.pojos.InputPreviewTransactionPOJO;
-import com.ejbank.pojos.OutputPreviewTransactionPOJO;
-import com.ejbank.pojos.TransactionsPOJO;
+import com.ejbank.pojos.*;
 
 @Path("/transaction")
 @Produces(MediaType.APPLICATION_JSON)
@@ -31,6 +29,11 @@ public class TransactionWebService {
 	public OutputPreviewTransactionPOJO preview(InputPreviewTransactionPOJO ipt) {
 		if(ipt.getAmount() <= 0) return new OutputPreviewTransactionPOJO(false, 0, 0, "", "Le montant ne peut pas être négatif");
 		return transactionBean.preview(ipt);
+	}
+
+	@POST
+	public OutputCommitTransactionPOJO commit(InputCommitTransactionPOJO ict) {
+		return transactionBean.commit(ict);
 	}
 
 }

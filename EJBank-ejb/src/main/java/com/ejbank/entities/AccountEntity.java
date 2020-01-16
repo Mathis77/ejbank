@@ -44,4 +44,7 @@ public class AccountEntity implements Serializable {
 		return customer;
 	}
 
+	public void setBalance(float balance) {
+		this.balance = balance;
+	}
 }
