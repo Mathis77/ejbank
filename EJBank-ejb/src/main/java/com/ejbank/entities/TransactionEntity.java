@@ -22,7 +22,9 @@ import javax.validation.constraints.NotNull;
 		@NamedQuery(name = "AllTransactionsFromUserId",
 					query = "SELECT t FROM TransactionEntity t WHERE t.author.id = :userId ORDER BY t.date DESC"),
 		@NamedQuery(name = "CountAllAccountTransaction",
-					query = "SELECT COUNT(t.id) FROM TransactionEntity t")
+					query = "SELECT COUNT(t.id) FROM TransactionEntity t"),
+		@NamedQuery(name = "CountAllTransactionFromUserId",
+				query = "SELECT COUNT(t.id) FROM TransactionEntity t WHERE t.accountFrom.id = :userId AND t.applied = :paramApplied ORDER BY t.date DESC")
 })
 public class TransactionEntity implements Serializable {
 

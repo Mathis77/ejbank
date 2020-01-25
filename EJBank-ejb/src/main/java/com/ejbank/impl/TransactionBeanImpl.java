@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import com.ejbank.TransactionBean;
+import com.ejbank.entities.CustomerEntity;
 import com.ejbank.entities.AccountEntity;
 import com.ejbank.entities.AdvisorEntity;
 import com.ejbank.entities.TransactionEntity;
@@ -46,6 +47,30 @@ public class TransactionBeanImpl implements TransactionBean {
 		}
 		
 		return new TransactionsPOJO(count, transactionsPOJO, "");
+	}
+	
+	/**
+	 * 
+	 */
+	@Override
+	public long getAllTansactionsForAdvisorID(long advisorId) {
+		long result = 0;
+		
+		//find all clients of advisor
+		@SuppressWarnings("unchecked")
+		List<CustomerEntity> clients = (List<CustomerEntity>)em.createNamedQuery("AllClientsFromAdvisorId")
+				.setParameter("advisorId", advisorId)
+				.getResultList();
+		
+		//adding number of transactions to result for each client
+		for(CustomerEntity client : clients) {
+			result += (long) em.createNamedQuery("CountAllTransactionFromUserId")
+					.setParameter("userId", client.getId())
+					.setParameter("paramApplied",1)					
+					.getSingleResult();
+		}
+		
+		return result;
 	}
 
 	@Override
