@@ -9,59 +9,85 @@ import javax.ejb.LocalBean;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 import com.ejbank.TransactionBean;
-import com.ejbank.entities.CustomerEntity;
 import com.ejbank.entities.AccountEntity;
 import com.ejbank.entities.AdvisorEntity;
+import com.ejbank.entities.CustomerEntity;
 import com.ejbank.entities.TransactionEntity;
 import com.ejbank.entities.UserEntity;
-import com.ejbank.mappers.TransactionMapper;
-import com.ejbank.pojos.*;
+import com.ejbank.pojos.InputCommitTransactionPOJO;
+import com.ejbank.pojos.InputPreviewTransactionPOJO;
+import com.ejbank.pojos.OutputCommitTransactionPOJO;
+import com.ejbank.pojos.OutputPreviewTransactionPOJO;
+import com.ejbank.pojos.TransactionDestinationPOJO;
+import com.ejbank.pojos.TransactionPOJO;
+import com.ejbank.pojos.TransactionSourcePOJO;
+import com.ejbank.pojos.TransactionStateEnum;
+import com.ejbank.pojos.TransactionsPOJO;
 
 @Stateless
 @LocalBean
 public class TransactionBeanImpl implements TransactionBean {
-	
+
 	private final static int LIMIT = 3;
-	
+
 	@PersistenceContext(unitName = "EJBankPU")
 	private EntityManager em;
 
-	private TransactionMapper mapper;
-
+	
 	@Override
 	public TransactionsPOJO getAllTransactionsFromAnAccount(long account_id, int offset, int user_id) {
-		long count = (long)em.createNamedQuery("CountAllAccountTransaction").getSingleResult();
+		//long count = (long)em.createNamedQuery("CountAllAccountTransaction").getSingleResult();
+		
+		//get the account's customer
+		int customerId = em.find(AccountEntity.class, account_id).getCustomer().getId();
+		
+		//is the advisor consulting ?
+		boolean isAdvisor = customerId == user_id; // TODO fait-on quelque chose de plus sécu ??
 		
 		@SuppressWarnings("unchecked")
-		List<TransactionEntity> transactions = (List<TransactionEntity>)em.createNamedQuery("AllTransactionsFromUserId")
-				.setParameter("userId", user_id)
-				.setFirstResult(offset) // OFFSET
-				.setMaxResults(LIMIT) // LIMIT
-				.getResultList();
-
+		List<TransactionEntity> transactions = (List<TransactionEntity>) em.createNamedQuery("AllTransactionsFromUserId")
+		.setParameter("accountId", account_id)
+		.setFirstResult(offset) // OFFSET
+		.setMaxResults(LIMIT)
+		.getResultList();// LIMIT
+		
 		List<TransactionPOJO> transactionsPOJO = new ArrayList<>();
 		for(TransactionEntity te : transactions) {
-			transactionsPOJO.add(mapper.getTransactionDestinationPOJOFromTransactionEntity(te));
+			transactionsPOJO.add(getTransactionDestinationPOJOFromTransactionEntity(te,isAdvisor,customerId));
 		}
-		
-		return new TransactionsPOJO(count, transactionsPOJO, "");
+
+		return new TransactionsPOJO(transactions.size(), transactionsPOJO, "");
 	}
 	
+	
+	private TransactionPOJO getTransactionDestinationPOJOFromTransactionEntity(TransactionEntity te,boolean isAdvisor,int customerId) {
+		//transaction_destination
+		if(te.getAccountFrom().getCustomer().getId() == customerId) {
+			return new TransactionDestinationPOJO(te.getId(), te.getDate().toLocalDate(), te.getAccountFrom().getAccountType().getName(), te.getAccountTo().getAccountType().getName(),
+					te.getAccountFrom().getCustomer().getFirstname(), te.getAmount(), te.getAuthor().getFirstname(), te.getComment(), TransactionStateEnum.getStateFromCode(te.getApplied(),isAdvisor).toString());
+		}
+		//transaction_source
+		else if(te.getAccountTo().getCustomer().getId() == customerId) {
+			return new TransactionSourcePOJO(te.getId(), te.getDate().toLocalDate(), te.getAccountFrom().getAccountType().getName(), te.getAccountTo().getAccountType().getName(),
+					te.getAccountTo().getCustomer().getFirstname(), te.getAmount(), te.getAuthor().getFirstname(), te.getComment(), TransactionStateEnum.getStateFromCode(te.getApplied(),isAdvisor).toString());
+		} else {
+			throw new AssertionError("A transaction has neither a source nor destination !");
+		}
+	}
+
 	/**
 	 * 
 	 */
 	@Override
-	public long getAllTansactionsForAdvisorID(long advisorId) {
+	public long countAllTansactionsForAdvisorID(long advisorId) {
 		long result = 0;
-		
+
 		//find all clients of advisor
-		@SuppressWarnings("unchecked")
-		List<CustomerEntity> clients = (List<CustomerEntity>)em.createNamedQuery("AllClientsFromAdvisorId")
-				.setParameter("advisorId", advisorId)
-				.getResultList();
-		
+		List<CustomerEntity> clients = getAllClientForCustomer(advisorId);
+
 		//adding number of transactions to result for each client
 		for(CustomerEntity client : clients) {
 			result += (long) em.createNamedQuery("CountAllTransactionFromUserId")
@@ -69,8 +95,17 @@ public class TransactionBeanImpl implements TransactionBean {
 					.setParameter("paramApplied",1)					
 					.getSingleResult();
 		}
-		
+
 		return result;
+	}
+
+	private List<CustomerEntity> getAllClientForCustomer(long advisorId) {
+		//find all clients of advisor
+		@SuppressWarnings("unchecked")
+		List<CustomerEntity> clients = (List<CustomerEntity>)em.createNamedQuery("AllClientsFromAdvisorId")
+		.setParameter("advisorId", advisorId)
+		.getResultList();
+		return clients;
 	}
 
 	@Override
@@ -124,5 +159,7 @@ public class TransactionBeanImpl implements TransactionBean {
 		else message = "Le virement a bien été pris en compte.";
 		return new OutputCommitTransactionPOJO(true, message); // Use implicit flush to update values for both account src and dst
 	}
+	
+
 
 }

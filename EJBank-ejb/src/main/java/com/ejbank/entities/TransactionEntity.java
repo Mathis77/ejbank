@@ -20,11 +20,11 @@ import javax.validation.constraints.NotNull;
 @Table(name = "ejbank_transaction")
 @NamedQueries(value = { 
 		@NamedQuery(name = "AllTransactionsFromUserId",
-					query = "SELECT t FROM TransactionEntity t WHERE t.author.id = :userId ORDER BY t.date DESC"),
+					query = "SELECT t FROM TransactionEntity t WHERE t.accountFrom.id = :accountId OR t.accountTo.id = :accountId ORDER BY t.date DESC"),
 		@NamedQuery(name = "CountAllAccountTransaction",
 					query = "SELECT COUNT(t.id) FROM TransactionEntity t"),
 		@NamedQuery(name = "CountAllTransactionFromUserId",
-				query = "SELECT COUNT(t.id) FROM TransactionEntity t WHERE t.accountFrom.id = :userId AND t.applied = :paramApplied ORDER BY t.date DESC")
+				query = "SELECT COUNT(t.id) FROM TransactionEntity t WHERE t.author.id = :userId AND t.applied = :paramApplied ORDER BY t.date DESC")
 })
 public class TransactionEntity implements Serializable {
 
@@ -105,5 +105,14 @@ public class TransactionEntity implements Serializable {
 	public AccountEntity getAccountTo() {
 		return accountTo;
 	}
+
+	@Override
+	public String toString() {
+		return "TransactionEntity [id=" + id + ", amount=" + amount + ", comment=" + comment + ", applied=" + applied
+				+ ", date=" + date + ", author=" + author + ", accountFrom=" + accountFrom + ", accountTo=" + accountTo
+				+ "]";
+	}
+	
+	
 
 }

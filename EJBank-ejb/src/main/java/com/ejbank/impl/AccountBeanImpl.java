@@ -75,4 +75,9 @@ public class AccountBeanImpl implements AccountBean {
     	return new AccountDetailsPOJO(owner, advisor, account.getAccountType().getRate(), interest, account.getBalance(), null);
     }
 
+	@Override
+	public AccountsPOJO getAllAccountsAttached(int advisorId) {
+		return null;
+	}
+
 }

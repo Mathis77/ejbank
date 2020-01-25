@@ -13,5 +13,7 @@ public interface AccountBean {
 	AccountsPOJO getAllAccountsById(int id);
 	
 	AccountDetailsPOJO getAccountDetails(int accountId, int userId);
+	
+	AccountsPOJO getAllAccountsAttached(int advisorId);
 
 }

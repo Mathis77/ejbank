@@ -27,7 +27,7 @@ public class TransactionWebService {
 	@Path("/validation/notification/{user_id}")
 	@GET
 	public long getTansactionsFromAdvisor(@PathParam("user_id") long user_id) {
-		return transactionBean.getAllTansactionsForAdvisorID(user_id);
+		return transactionBean.countAllTansactionsForAdvisorID(user_id);
 	}
 
 	@Path("/preview")

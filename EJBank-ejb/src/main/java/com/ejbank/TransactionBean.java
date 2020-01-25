@@ -9,7 +9,7 @@ public interface TransactionBean {
 	
 	TransactionsPOJO getAllTransactionsFromAnAccount(long account_id, int offset, int user_id);
 
-	long getAllTansactionsForAdvisorID(long advisor_id);
+	long countAllTansactionsForAdvisorID(long advisor_id);
 
 	OutputPreviewTransactionPOJO preview(InputPreviewTransactionPOJO ipt);
 
