@@ -1,6 +1,7 @@
 package com.ejbank.entities;
 
 import java.io.Serializable;
+import java.sql.Date;
 import java.time.LocalDate;
 
 import javax.persistence.Column;
@@ -45,7 +46,7 @@ public class TransactionEntity implements Serializable {
 	private int applied;
 
 	@Column(name = "date")
-	private LocalDate date;
+	private Date date;
 	
 	@ManyToOne
 	@JoinColumn(name = "author")
@@ -58,7 +59,21 @@ public class TransactionEntity implements Serializable {
 	@ManyToOne
 	@JoinColumn(name = "account_id_to")
 	private AccountEntity accountTo;
-	
+
+	public TransactionEntity() {
+		// Empty for JPA
+	}
+
+	public TransactionEntity(float amount, String comment, int applied, Date date, UserEntity author, AccountEntity accountFrom, AccountEntity accountTo) {
+		this.amount = amount;
+		this.comment = comment;
+		this.applied = applied;
+		this.date = date;
+		this.author = author;
+		this.accountFrom = accountFrom;
+		this.accountTo = accountTo;
+	}
+
 	public int getId() {
 		return id;
 	}
@@ -79,7 +94,7 @@ public class TransactionEntity implements Serializable {
 		return author;
 	}
 
-	public LocalDate getDate() {
+	public Date getDate() {
 		return date;
 	}
 

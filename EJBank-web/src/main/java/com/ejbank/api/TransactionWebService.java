@@ -2,17 +2,15 @@ package com.ejbank.api;
 
 import javax.ejb.EJB;
 import javax.enterprise.context.RequestScoped;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
 import com.ejbank.TransactionBean;
-import com.ejbank.pojos.TransactionsPOJO;
+import com.ejbank.pojos.*;
 
 @Path("/transaction")
 @Produces(MediaType.APPLICATION_JSON)
+@Consumes(MediaType.APPLICATION_JSON)
 @RequestScoped
 public class TransactionWebService {
 	
@@ -30,6 +28,18 @@ public class TransactionWebService {
 	@GET
 	public long getTansactionsFromAdvisor(@PathParam("user_id") long user_id) {
 		return transactionBean.getAllTansactionsForAdvisorID(user_id);
+	}
+
+	@Path("/preview")
+	@POST
+	public OutputPreviewTransactionPOJO preview(InputPreviewTransactionPOJO ipt) {
+		if(ipt.getAmount() <= 0) return new OutputPreviewTransactionPOJO(false, 0, 0, "", "Le montant ne peut pas être négatif");
+		return transactionBean.preview(ipt);
+	}
+
+	@POST
+	public OutputCommitTransactionPOJO commit(InputCommitTransactionPOJO ict) {
+		return transactionBean.commit(ict);
 	}
 
 }

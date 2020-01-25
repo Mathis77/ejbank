@@ -23,9 +23,15 @@ public class AccountWebService {
 	@Path("/accounts/{userId}") // For accounts/{userId}
 	@GET
 	public AccountsPOJO getCustomerAccounts(@PathParam("userId") int id) {
-		System.out.println("On passe bien ici");
 		if(id < 0) throw new IllegalArgumentException("Identifiant négatif !"); // A voir si on fait une exception ou un POJO vide pour pas planter le serveur
 		return accountBean.getAccountsById(id);
+	}
+
+	@Path("/accounts/all/{userId}")
+	@GET
+	public AccountsPOJO getAllAccounts(@PathParam("userId") int id) {
+		if(id < 0) throw new IllegalArgumentException("Identifiant négatif !");
+		return accountBean.getAllAccountsById(id);
 	}
 	
 	@Path("account/{account_id}/{user_id}")
