@@ -77,7 +77,42 @@ public class AccountBeanImpl implements AccountBean {
 
 	@Override
 	public AccountsPOJO getAllAccountsAttached(int advisorId) {
-		return null;
+		
+		//TransactionBeanImpl transaction = new TransactionBeanImpl();
+		
+		//Get the list of customer for this advisor
+		@SuppressWarnings("unchecked")
+		List<CustomerEntity> customersList = (List<CustomerEntity>) em.createNamedQuery("AllClientsFromAdvisorId")
+				.setParameter("advisorId",advisorId)
+				.getResultList();
+		
+		System.out.println("-------------Recuperation de la liste des customers pour advisor : "+advisorId+"----------");
+		
+		//Get the list of accounts for each customer
+		List<AccountPOJO> accountsList = new ArrayList<>();
+		for(CustomerEntity customer : customersList) {
+			System.out.println("---------Customer : "+customer.getId()+" "+customer.getFirstname()+" "+customer.getLastname()+"---------");
+			for(AccountEntity account : customer.getAccounts()) {
+				System.out.println("---------Customer : "+customer.getId()+" account : "+account.getId()+"--------------");
+				accountsList.add(new AccountsAttachedPOJO(((Integer)account.getId()).toString(), account.getCustomer().getFirstname()+" "+account.getCustomer().getLastname(),
+						account.getAccountType().getName(),account.getBalance(), countAllTansactionsForAccount(account.getId())));
+			}
+		}
+		
+		System.out.println("-------Fin de la recuperation des comptes------------");
+		return new AccountsPOJO(accountsList,"");
+	}
+	
+	private long countAllTansactionsForAccount(int accountId) {
+		long result = 0;
+		System.out.println("------------Requete accountId : "+accountId+"--------------");
+		if(em == null) System.out.println("---------em is null---------");
+		//Get number of transactions for account
+		result = (long) em.createNamedQuery("CountAllTransactionFromAccount")
+				.setParameter("accountId", accountId)
+				.setParameter("paramApplied",1)					
+				.getSingleResult();
+		return result;
 	}
 
 }

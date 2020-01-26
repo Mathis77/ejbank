@@ -38,17 +38,17 @@ public class TransactionBeanImpl implements TransactionBean {
 
 	
 	@Override
-	public TransactionsPOJO getAllTransactionsFromAnAccount(long account_id, int offset, int user_id) {
+	public TransactionsPOJO getAllTransactionsFromAnAccount(int account_id, int offset, int user_id) {
 		//long count = (long)em.createNamedQuery("CountAllAccountTransaction").getSingleResult();
 		
 		//get the account's customer
-		int customerId = em.find(AccountEntity.class, account_id).getCustomer().getId();
+		int customerId = ((AccountEntity)em.find(AccountEntity.class, account_id)).getCustomer().getId();
 		
 		//is the advisor consulting ?
-		boolean isAdvisor = customerId == user_id; // TODO fait-on quelque chose de plus sécu ??
+		boolean isAdvisor = customerId != user_id; // TODO fait-on quelque chose de plus sécu ??
 		
 		@SuppressWarnings("unchecked")
-		List<TransactionEntity> transactions = (List<TransactionEntity>) em.createNamedQuery("AllTransactionsFromUserId")
+		List<TransactionEntity> transactions = (List<TransactionEntity>) em.createNamedQuery("AllTransactionsFromAccountID")
 		.setParameter("accountId", account_id)
 		.setFirstResult(offset) // OFFSET
 		.setMaxResults(LIMIT)
@@ -83,7 +83,7 @@ public class TransactionBeanImpl implements TransactionBean {
 	 */
 	@Override
 	public long countAllTansactionsForAdvisorID(long advisorId) {
-		long result = 0;
+		int result = 0;
 
 		//find all clients of advisor
 		List<CustomerEntity> clients = getAllClientForCustomer(advisorId);
@@ -98,6 +98,20 @@ public class TransactionBeanImpl implements TransactionBean {
 
 		return result;
 	}
+	
+	@Override
+	public long countAllTansactionsForAccount(int accountId) {
+		long result = 0;
+		System.out.println("------------Requete accountId : "+accountId+"--------------");
+		if(em == null) System.out.println("---------em is null---------");
+		//Get number of transactions for account
+		result = (long) em.createNamedQuery("CountAllTransactionFromAccount")
+				.setParameter("accountId", accountId)
+				.setParameter("paramApplied",1)					
+				.getSingleResult();
+		return result;
+	}
+
 
 	private List<CustomerEntity> getAllClientForCustomer(long advisorId) {
 		//find all clients of advisor

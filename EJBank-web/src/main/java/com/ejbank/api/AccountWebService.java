@@ -39,5 +39,12 @@ public class AccountWebService {
 	public AccountDetailsPOJO getAccountDetails(@PathParam("account_id") int accountId, @PathParam("user_id") int userId) {
 		return accountBean.getAccountDetails(accountId, userId);
 	}
+	
+	@Path("/accounts/attached/{user_id}")
+	@GET
+	public AccountsPOJO getAllAccountsAttached(@PathParam("user_id") int id) {
+		System.out.println("-------On entre dans le webService avec id : "+id+"-----------");
+		return accountBean.getAllAccountsAttached(id);
+	}
 
 }
