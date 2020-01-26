@@ -45,8 +45,6 @@ public class TransactionWebService {
 	@Path("/validation")
 	@POST
 	public ResponseValidationPOJO valid(ValidationCommitPOJO validation) {
-		System.out.println("----------------Entrer web service validation---------------------------");
-		System.out.println(validation);
 		return transactionBean.validate(validation);
 	}
 

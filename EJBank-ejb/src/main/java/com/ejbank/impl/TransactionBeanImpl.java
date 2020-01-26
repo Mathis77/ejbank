@@ -41,13 +41,13 @@ public class TransactionBeanImpl implements TransactionBean {
 	
 	@Override
 	public TransactionsPOJO getAllTransactionsFromAnAccount(int account_id, int offset, int user_id) {
-		//long count = (long)em.createNamedQuery("CountAllAccountTransaction").getSingleResult();
+		long count = (long)em.createNamedQuery("CountAllAccountTransaction").getSingleResult();
 		
 		//get the account's customer
 		int customerId = ((AccountEntity)em.find(AccountEntity.class, account_id)).getCustomer().getId();
 		
 		//is the advisor consulting ?
-		boolean isAdvisor = customerId != user_id; // TODO fait-on quelque chose de plus sécu ??
+		boolean isAdvisor = customerId != user_id;
 		
 		@SuppressWarnings("unchecked")
 		List<TransactionEntity> transactions = (List<TransactionEntity>) em.createNamedQuery("AllTransactionsFromAccountID")
@@ -55,13 +55,13 @@ public class TransactionBeanImpl implements TransactionBean {
 		.setFirstResult(offset) // OFFSET
 		.setMaxResults(LIMIT)
 		.getResultList();// LIMIT
-		
+
 		List<TransactionPOJO> transactionsPOJO = new ArrayList<>();
 		for(TransactionEntity te : transactions) {
 			transactionsPOJO.add(getTransactionDestinationPOJOFromTransactionEntity(te,isAdvisor,customerId));
 		}
 
-		return new TransactionsPOJO(transactions.size(), transactionsPOJO, "");
+		return new TransactionsPOJO(count, transactionsPOJO, "");
 	}
 	
 	
@@ -69,20 +69,18 @@ public class TransactionBeanImpl implements TransactionBean {
 		//transaction_destination
 		if(te.getAccountFrom().getCustomer().getId() == customerId) {
 			return new TransactionDestinationPOJO(te.getId(), te.getDate().toLocalDate(), te.getAccountFrom().getAccountType().getName(), te.getAccountTo().getAccountType().getName(),
-					te.getAccountFrom().getCustomer().getFirstname(), te.getAmount(), te.getAuthor().getFirstname(), te.getComment(), TransactionStateEnum.getStateFromCode(te.getApplied(),isAdvisor).toString());
+					te.getAccountTo().getCustomer().getFirstname(), te.getAmount(), te.getAuthor().getFirstname(), te.getComment(), TransactionStateEnum.getStateFromCode(te.getApplied(),isAdvisor).toString());
 		}
 		//transaction_source
 		else if(te.getAccountTo().getCustomer().getId() == customerId) {
 			return new TransactionSourcePOJO(te.getId(), te.getDate().toLocalDate(), te.getAccountFrom().getAccountType().getName(), te.getAccountTo().getAccountType().getName(),
-					te.getAccountTo().getCustomer().getFirstname(), te.getAmount(), te.getAuthor().getFirstname(), te.getComment(), TransactionStateEnum.getStateFromCode(te.getApplied(),isAdvisor).toString());
+					te.getAccountFrom().getCustomer().getFirstname(), te.getAmount(), te.getAuthor().getFirstname(), te.getComment(), TransactionStateEnum.getStateFromCode(te.getApplied(),isAdvisor).toString());
 		} else {
 			throw new AssertionError("A transaction has neither a source nor destination !");
 		}
 	}
 
-	/**
-	 * 
-	 */
+
 	@Override
 	public long countAllTansactionsForAdvisorID(long advisorId) {
 		int result = 0;
@@ -101,7 +99,6 @@ public class TransactionBeanImpl implements TransactionBean {
 		return result;
 	}
 	
-
 
 	private List<CustomerEntity> getAllClientForCustomer(long advisorId) {
 		//find all clients of advisor
@@ -143,7 +140,7 @@ public class TransactionBeanImpl implements TransactionBean {
 		UserEntity author = em.find(UserEntity.class, ict.getAuthor());
 
 		// Update the balance of each account if the amount is less than 1000 euros
-		if(ict.getAmount() < 1000) {
+		if(ict.getAmount() < 1000 || author instanceof AdvisorEntity) {
 			src.setBalance(src.getBalance() - ict.getAmount());
 			dst.setBalance(dst.getBalance() + ict.getAmount());
 		}
@@ -169,34 +166,31 @@ public class TransactionBeanImpl implements TransactionBean {
 	public ResponseValidationPOJO validate(ValidationCommitPOJO validation) {
 		int transactionId = Integer.parseInt(validation.getTransaction());
 		int authorId = Integer.parseInt(validation.getAuthor());
-		System.out.println("---------transactionId :"+transactionId+"---authorId :"+authorId+"---------");
 		
 		TransactionEntity transaction = (TransactionEntity) em.find(TransactionEntity.class,transactionId);
 		int accountId =  transaction.getAccountFrom().getId();
-		System.out.println("------------Recuperation accountId :"+accountId+"----------------");
+		AccountEntity accountFrom = transaction.getAccountFrom();
+		AccountEntity accountTo = transaction.getAccountTo();
 		int customerId = ((AccountEntity)em.find(AccountEntity.class,accountId)).getCustomer().getId();
-		System.out.println("-------------Recuperation customerId :"+customerId+"--------------");
 		int advisorId = ((CustomerEntity)em.find(CustomerEntity.class,customerId)).getAdvisor().getId();
-		System.out.println("-------------Recuperation advisorId :"+advisorId+"------------------------");
+		
 		if(authorId != advisorId) {
 			return new ResponseValidationPOJO(false, "Retour du serveur", "L'auteur n'est pas le conseiller du compte");
 		}
 		
 		boolean isValid = Boolean.parseBoolean(validation.isApprove());
 		if(isValid) {
-			System.out.println("--------------Transaction is valid-----------------");
-			((TransactionEntity) em.find(TransactionEntity.class,transactionId)).setApplied(0);
+			transaction.setApplied(0);
+			accountFrom.setBalance(accountFrom.getBalance() - transaction.getAmount());
+			accountTo.setBalance(accountTo.getBalance() + transaction.getAmount());
 			em.flush();
 		}else {
-			System.out.println("-----------Transaction is not valid------------------");
-			((TransactionEntity) em.find(TransactionEntity.class,transactionId)).setApplied(1);//TODO Mettre un code de refus
+			((TransactionEntity) em.find(TransactionEntity.class,transactionId)).setApplied(1);//TODO Mettre un code de refus mais pas implémenté coté front
 			em.flush();
 		}
 		
-		System.out.println("-----------------End of flush----------------");
 		return new ResponseValidationPOJO(true, "Retour du serveur", "");
 	}
 	
-
 
 }
