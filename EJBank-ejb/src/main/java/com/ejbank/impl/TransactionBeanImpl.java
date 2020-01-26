@@ -164,20 +164,22 @@ public class TransactionBeanImpl implements TransactionBean {
 
 	@Override
 	public ResponseValidationPOJO validate(ValidationCommitPOJO validation) {
+		//Get transactionId and authoId
 		int transactionId = Integer.parseInt(validation.getTransaction());
 		int authorId = Integer.parseInt(validation.getAuthor());
 		
+		//Check the author of transaction
 		TransactionEntity transaction = (TransactionEntity) em.find(TransactionEntity.class,transactionId);
 		int accountId =  transaction.getAccountFrom().getId();
 		AccountEntity accountFrom = transaction.getAccountFrom();
 		AccountEntity accountTo = transaction.getAccountTo();
 		int customerId = ((AccountEntity)em.find(AccountEntity.class,accountId)).getCustomer().getId();
 		int advisorId = ((CustomerEntity)em.find(CustomerEntity.class,customerId)).getAdvisor().getId();
-		
 		if(authorId != advisorId) {
 			return new ResponseValidationPOJO(false, "Retour du serveur", "L'auteur n'est pas le conseiller du compte");
 		}
 		
+		//Valid or invalid the transaction
 		boolean isValid = Boolean.parseBoolean(validation.isApprove());
 		if(isValid) {
 			transaction.setApplied(0);
