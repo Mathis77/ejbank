@@ -41,5 +41,13 @@ public class TransactionWebService {
 	public OutputCommitTransactionPOJO commit(InputCommitTransactionPOJO ict) {
 		return transactionBean.commit(ict);
 	}
+	
+	@Path("/validation")
+	@POST
+	public ResponseValidationPOJO valid(ValidationCommitPOJO validation) {
+		System.out.println("----------------Entrer web service validation---------------------------");
+		System.out.println(validation);
+		return transactionBean.validate(validation);
+	}
 
 }

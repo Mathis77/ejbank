@@ -115,6 +115,9 @@ public class TransactionEntity implements Serializable {
 				+ "]";
 	}
 	
+	public void setApplied(int appliedValue) {
+		this.applied = appliedValue;
+	}
 	
 
 }

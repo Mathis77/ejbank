@@ -21,11 +21,13 @@ import com.ejbank.pojos.InputCommitTransactionPOJO;
 import com.ejbank.pojos.InputPreviewTransactionPOJO;
 import com.ejbank.pojos.OutputCommitTransactionPOJO;
 import com.ejbank.pojos.OutputPreviewTransactionPOJO;
+import com.ejbank.pojos.ResponseValidationPOJO;
 import com.ejbank.pojos.TransactionDestinationPOJO;
 import com.ejbank.pojos.TransactionPOJO;
 import com.ejbank.pojos.TransactionSourcePOJO;
 import com.ejbank.pojos.TransactionStateEnum;
 import com.ejbank.pojos.TransactionsPOJO;
+import com.ejbank.pojos.ValidationCommitPOJO;
 
 @Stateless
 @LocalBean
@@ -99,18 +101,6 @@ public class TransactionBeanImpl implements TransactionBean {
 		return result;
 	}
 	
-	@Override
-	public long countAllTansactionsForAccount(int accountId) {
-		long result = 0;
-		System.out.println("------------Requete accountId : "+accountId+"--------------");
-		if(em == null) System.out.println("---------em is null---------");
-		//Get number of transactions for account
-		result = (long) em.createNamedQuery("CountAllTransactionFromAccount")
-				.setParameter("accountId", accountId)
-				.setParameter("paramApplied",1)					
-				.getSingleResult();
-		return result;
-	}
 
 
 	private List<CustomerEntity> getAllClientForCustomer(long advisorId) {
@@ -172,6 +162,39 @@ public class TransactionBeanImpl implements TransactionBean {
 		if(applied == 1) message = "La somme excédant 1000€, votre virement est en attente de validation par votre conseiller.";
 		else message = "Le virement a bien été pris en compte.";
 		return new OutputCommitTransactionPOJO(true, message); // Use implicit flush to update values for both account src and dst
+	}
+
+
+	@Override
+	public ResponseValidationPOJO validate(ValidationCommitPOJO validation) {
+		int transactionId = Integer.parseInt(validation.getTransaction());
+		int authorId = Integer.parseInt(validation.getAuthor());
+		System.out.println("---------transactionId :"+transactionId+"---authorId :"+authorId+"---------");
+		
+		TransactionEntity transaction = (TransactionEntity) em.find(TransactionEntity.class,transactionId);
+		int accountId =  transaction.getAccountFrom().getId();
+		System.out.println("------------Recuperation accountId :"+accountId+"----------------");
+		int customerId = ((AccountEntity)em.find(AccountEntity.class,accountId)).getCustomer().getId();
+		System.out.println("-------------Recuperation customerId :"+customerId+"--------------");
+		int advisorId = ((CustomerEntity)em.find(CustomerEntity.class,customerId)).getAdvisor().getId();
+		System.out.println("-------------Recuperation advisorId :"+advisorId+"------------------------");
+		if(authorId != advisorId) {
+			return new ResponseValidationPOJO(false, "Retour du serveur", "L'auteur n'est pas le conseiller du compte");
+		}
+		
+		boolean isValid = Boolean.parseBoolean(validation.isApprove());
+		if(isValid) {
+			System.out.println("--------------Transaction is valid-----------------");
+			((TransactionEntity) em.find(TransactionEntity.class,transactionId)).setApplied(0);
+			em.flush();
+		}else {
+			System.out.println("-----------Transaction is not valid------------------");
+			((TransactionEntity) em.find(TransactionEntity.class,transactionId)).setApplied(1);//TODO Mettre un code de refus
+			em.flush();
+		}
+		
+		System.out.println("-----------------End of flush----------------");
+		return new ResponseValidationPOJO(true, "Retour du serveur", "");
 	}
 	
 

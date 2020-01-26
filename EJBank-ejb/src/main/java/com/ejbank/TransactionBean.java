@@ -14,7 +14,6 @@ public interface TransactionBean {
 	OutputPreviewTransactionPOJO preview(InputPreviewTransactionPOJO ipt);
 
 	OutputCommitTransactionPOJO commit(InputCommitTransactionPOJO ict);
-
-	long countAllTansactionsForAccount(int accountId);
-
+	
+	ResponseValidationPOJO validate(ValidationCommitPOJO validation);
 }
